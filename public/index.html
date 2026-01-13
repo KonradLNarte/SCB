@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCB API Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .result-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .result-container.show {
+            display: block;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .result-content {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .json-viewer {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .logs-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .logs-header {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .log-entry {
+            padding: 8px 12px;
+            background: white;
+            border-left: 3px solid #667eea;
+            margin-bottom: 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #444;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loader.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader-text {
+            margin-top: 10px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box strong {
+            color: #0066cc;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .examples {
+            margin-top: 10px;
+        }
+
+        .example-link {
+            display: inline-block;
+            margin-right: 15px;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .example-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 24px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏢 SCB API Test</h1>
+        <p class="subtitle">Testa anslutning till SCB:s företags-API med mTLS-autentisering</p>
+
+        <div class="info-box">
+            <strong>Om detta test:</strong>
+            <p>Denna applikation testar att vi kan anropa SCB:s (Statistiska Centralbyrån) privata API med klientcertifikat (mTLS). API:et används för att hämta företagsinformation baserat på organisationsnummer.</p>
+            <div class="examples">
+                <strong>Exempel:</strong>
+                <a href="#" class="example-link" onclick="setOrgNummer('5560743089'); return false;">Volvo (5560743089)</a>
+                <a href="#" class="example-link" onclick="setOrgNummer('5560270849'); return false;">Ericsson (5560270849)</a>
+                <a href="#" class="example-link" onclick="setOrgNummer('5560116892'); return false;">H&M (5560116892)</a>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="orgNummer">Organisationsnummer (10 siffror):</label>
+            <input
+                type="text"
+                id="orgNummer"
+                placeholder="5560743089"
+                value="5560743089"
+                maxlength="10"
+                pattern="[0-9]{10}"
+            >
+        </div>
+
+        <div class="button-group">
+            <button class="btn-primary" onclick="testAPI()" id="testBtn">
+                🚀 Testa SCB API
+            </button>
+            <button class="btn-secondary" onclick="clearResults()">
+                🗑️ Rensa
+            </button>
+        </div>
+
+        <div class="loader" id="loader">
+            <div class="spinner"></div>
+            <p class="loader-text">Anropar SCB API...</p>
+        </div>
+
+        <div class="result-container" id="resultContainer">
+            <div class="result-header">
+                <h2>Resultat:</h2>
+                <span class="status-badge" id="statusBadge"></span>
+            </div>
+            <div class="result-content">
+                <div class="json-viewer" id="jsonResult"></div>
+                <div class="logs-section" id="logsSection">
+                    <div class="logs-header">📋 Loggar:</div>
+                    <div id="logsContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/scb-api-test'; // Adjust this to your Edge Function URL
+        // For local Supabase: http://localhost:54321/functions/v1/scb-api-test
+        // For deployed: https://your-project.supabase.co/functions/v1/scb-api-test
+
+        function setOrgNummer(nummer) {
+            document.getElementById('orgNummer').value = nummer;
+        }
+
+        async function testAPI() {
+            const orgNummer = document.getElementById('orgNummer').value.trim();
+            const testBtn = document.getElementById('testBtn');
+            const loader = document.getElementById('loader');
+            const resultContainer = document.getElementById('resultContainer');
+
+            // Validation
+            if (!orgNummer || !/^[0-9]{10}$/.test(orgNummer)) {
+                alert('Vänligen ange ett giltigt organisationsnummer (10 siffror)');
+                return;
+            }
+
+            // Show loader
+            testBtn.disabled = true;
+            loader.classList.add('show');
+            resultContainer.classList.remove('show');
+
+            try {
+                console.log('Calling API with org nummer:', orgNummer);
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ organisationsnummer: orgNummer })
+                });
+
+                const data = await response.json();
+                console.log('API response:', data);
+
+                displayResults(data);
+
+            } catch (error) {
+                console.error('Error calling API:', error);
+                displayResults({
+                    success: false,
+                    error: error.message,
+                    logs: ['Network error: ' + error.message]
+                });
+            } finally {
+                testBtn.disabled = false;
+                loader.classList.remove('show');
+            }
+        }
+
+        function displayResults(data) {
+            const resultContainer = document.getElementById('resultContainer');
+            const statusBadge = document.getElementById('statusBadge');
+            const jsonResult = document.getElementById('jsonResult');
+            const logsContent = document.getElementById('logsContent');
+            const logsSection = document.getElementById('logsSection');
+
+            // Show result container
+            resultContainer.classList.add('show');
+
+            // Set status badge
+            if (data.success) {
+                statusBadge.textContent = '✓ Lyckades';
+                statusBadge.className = 'status-badge status-success';
+            } else {
+                statusBadge.textContent = '✗ Misslyckades';
+                statusBadge.className = 'status-badge status-error';
+            }
+
+            // Display JSON data
+            const displayData = { ...data };
+            delete displayData.logs; // Don't show logs in main JSON
+            jsonResult.textContent = JSON.stringify(displayData, null, 2);
+
+            // Display logs
+            if (data.logs && data.logs.length > 0) {
+                logsSection.style.display = 'block';
+                logsContent.innerHTML = data.logs
+                    .map(log => `<div class="log-entry">${escapeHtml(log)}</div>`)
+                    .join('');
+            } else {
+                logsSection.style.display = 'none';
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('resultContainer').classList.remove('show');
+            document.getElementById('orgNummer').value = '5560743089';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('orgNummer').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                testAPI();
+            }
+        });
+    </script>
+</body>
+</html>
