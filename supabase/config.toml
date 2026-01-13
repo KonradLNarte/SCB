@@ -20,10 +20,6 @@ major_version = 15
 # Port to use for Supabase Studio
 port = 54323
 
-[functions]
-# Enable or disable Edge Functions
-enabled = true
-
 # Edge Functions configuration
 [functions.scb-api-test]
 # This section is for the scb-api-test Edge Function
