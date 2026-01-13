@@ -1,0 +1,34 @@
+# Environment files
+.env
+.env.local
+
+# Certificates (NEVER commit these!)
+*.pfx
+*.pem
+*.key
+*.crt
+*.p12
+
+# Deno
+.deno/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build output
+dist/
+build/
